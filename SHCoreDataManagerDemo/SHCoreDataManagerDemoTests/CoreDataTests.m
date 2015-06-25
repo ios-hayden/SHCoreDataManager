@@ -23,7 +23,7 @@
     [[SHCoreDataManager sharedManager] initWithDataModelName:@"CoreDataModel"];
 }
 
-- (void)testInsert {
+- (void)test01Insert {
     [[SHCoreDataManager sharedManager] createWithEntity:@"Teacher" result:^(NSManagedObject *record) {
         Teacher *aTeacher = (Teacher*)record;
         aTeacher.name = @"Jason";
@@ -36,14 +36,14 @@
                 aStudent.num = @"S2121918";
                 [aTeacher addStudentsObject:aStudent];
             }
-            [[SHCoreDataManager sharedManager] save];
+            [[SHCoreDataManager sharedManager] saveAsyncMOC];
             self.asyncState = 1;
         }];
     }];
     [self waitForStateChange];
 }
 
-- (void)testRead {
+- (void)test02Read {
     [[SHCoreDataManager sharedManager] findWithConditions:nil entityName:@"Teacher" result:^(NSArray *records) {
         if (records.count) {
             Teacher *aTeacher = [records lastObject];
@@ -59,7 +59,7 @@
     [self waitForStateChange];
 }
 
-- (void)testUpdate
+- (void)test03Update
 {
     NSPredicate *predicate = [NSPredicate predicateWithFormat:@"name=%@", @"Jason"];
     NSDictionary *dicUpdate = @{
@@ -76,15 +76,11 @@
     [self waitForStateChange];
 }
 
-- (void)testDelete
+- (void)test04Delete
 {
     NSPredicate *predicate = [NSPredicate predicateWithFormat:@"name=%@", @"Hayden"];
     [[SHCoreDataManager sharedManager] deleteEntity:@"Teacher" withWhere:predicate result:^(NSInteger count) {
-        if (count) {
-            self.asyncState = 1;
-        }else{
-            self.asyncState = 2;
-        }
+        self.asyncState = 1;
     }];
     [self waitForStateChange];
 }

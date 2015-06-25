@@ -11,8 +11,8 @@
 @implementation SHCoreDataModel
 @synthesize managedObjectModel = _managedObjectModel;
 @synthesize persistentStoreCoordinator = _persistentStoreCoordinator;
-@synthesize readMOC = _readMOC;
-@synthesize handleMOC = _handleMOC;
+@synthesize asyncHandleMOC = _asyncHandleMOC;
+@synthesize syncHandleMOC = _syncHandleMOC;
 
 #pragma mark - Lifecycle
 - (id)init
@@ -32,19 +32,24 @@
 #pragma mark - Public Methods
 - (void)initIfNeed
 {
-    //使用Lazy Load方式初始化MOC、persistentStoreCoordinator
-    [self.handleMOC performBlock:^{
-        NSLog(@"HandleMOC init");
-    }];
-    [self.readMOC performBlock:^{
-        NSLog(@"ReadMOC init");
-    }];
+    [self.syncHandleMOC class];
+    [self.asyncHandleMOC class];
 }
 
-- (BOOL)save
+- (BOOL)saveSyncMOC
 {
-    NSError *error;
-    return [self.handleMOC save:&error];
+    @synchronized(self.syncHandleMOC){
+        NSError *error;
+        return [self.syncHandleMOC save:&error];
+    }
+}
+
+- (void)saveAsyncMOC
+{
+    [self.asyncHandleMOC performBlock:^{
+        NSError *error;
+        [self.asyncHandleMOC save:&error];
+    }];
 }
 
 #pragma mark - Private Methods
@@ -57,16 +62,17 @@
 - (void)mocDidSaveNotification:(NSNotification *)notification
 {
     NSManagedObjectContext *saveContext=[notification object];
-    if (self.readMOC==saveContext) {
-        return;
+    if (saveContext == self.asyncHandleMOC) {
+        __weak NSManagedObjectContext *weakMOC = self.syncHandleMOC;
+        dispatch_sync(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            [weakMOC mergeChangesFromContextDidSaveNotification:notification];
+        });
+    }else if(saveContext == self.syncHandleMOC){
+        __weak NSManagedObjectContext *weakMOC = self.asyncHandleMOC;
+        [weakMOC performBlock:^{
+            [weakMOC mergeChangesFromContextDidSaveNotification:notification];
+        }];
     }
-    if (self.readMOC.persistentStoreCoordinator!=saveContext.persistentStoreCoordinator) {
-        return;
-    }
-    __weak NSManagedObjectContext *weakReadMOC = self.readMOC;
-    [weakReadMOC performBlock:^{
-        [weakReadMOC mergeChangesFromContextDidSaveNotification:notification];
-    }];
 }
 
 #pragma mark - Getters
@@ -99,29 +105,25 @@
     return _persistentStoreCoordinator;
 }
 
-- (NSManagedObjectContext *)readMOC
+- (NSManagedObjectContext *)asyncHandleMOC
 {
-    if (_readMOC != nil) {
-        return _readMOC;
+    if (_asyncHandleMOC != nil) {
+        return _asyncHandleMOC;
     }
     
-    NSPersistentStoreCoordinator *coordinator = [self persistentStoreCoordinator];
-    if (!coordinator) {
-        return nil;
-    }
-    _readMOC = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSMainQueueConcurrencyType];
-    [_readMOC setPersistentStoreCoordinator:coordinator];
-    return _readMOC;
+    _asyncHandleMOC = [[NSManagedObjectContext alloc]initWithConcurrencyType:NSPrivateQueueConcurrencyType];
+    [_asyncHandleMOC setPersistentStoreCoordinator:self.persistentStoreCoordinator];
+    return _asyncHandleMOC;
 }
 
-- (NSManagedObjectContext *)handleMOC
+- (NSManagedObjectContext *)syncHandleMOC
 {
-    if (_handleMOC != nil) {
-        return _handleMOC;
+    if (_syncHandleMOC != nil) {
+        return _syncHandleMOC;
     }
     
-    _handleMOC = [[NSManagedObjectContext alloc]initWithConcurrencyType:NSPrivateQueueConcurrencyType];
-    [_handleMOC setPersistentStoreCoordinator:self.persistentStoreCoordinator];
-    return _handleMOC;
+    _syncHandleMOC = [[NSManagedObjectContext alloc]init];
+    [_syncHandleMOC setPersistentStoreCoordinator:self.persistentStoreCoordinator];
+    return _syncHandleMOC;
 }
 @end

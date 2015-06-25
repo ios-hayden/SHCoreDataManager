@@ -27,20 +27,31 @@ typedef void (^SHCDBOOLBlock)(BOOL result);
 - (NSArray*)findWithWhere:(id)where entityName:(NSString*)entityName;
 - (NSArray*)findWithConditions:(SHCoreDataConditions*)conditions entityName:(NSString*)entityName;
 
+- (NSManagedObject*)createEntity:(NSString*)entityName withValues:(NSDictionary*)dicValues;
+- (NSArray*)createEntity:(NSString*)entityName withCount:(NSUInteger)iCount andValues:(NSArray*)arrValues;
+
+- (NSUInteger)updateRecord:(NSManagedObject*)managedObject to:(NSDictionary*)dicValues;
+- (NSUInteger)updateEntity:(NSString*)entityName to:(NSDictionary*)dicValues withWhere:(id)where;
+
+- (NSUInteger)deleteRecord:(NSManagedObject*)managedObject;
+- (NSUInteger)deleteEntity:(NSString*)entityName withWhere:(id)where;
+
 #pragma mark - CURD Asynchronous Methods
 - (void)createWithEntity:(NSString*)entityName result:(SHCDRecordBlock)resultBlock;
 - (void)createWithEntity:(NSString*)entityName count:(NSUInteger)count result:(SHCDRecordsBlock)resultBlock;
 - (void)createAndSaveWithRecord:(NSDictionary*)dicRecord entity:(NSString*)entityName;
-- (void)updateEntity:(NSString*)entityName withWhere:(id)where to:(NSDictionary*)dicRecord;
+
 - (void)updateEntity:(NSString*)entityName withWhere:(id)where to:(NSDictionary*)dicRecord  result:(SHCDCountBlock)resultBlock;
 - (void)updateRecord:(NSManagedObject*)record to:(NSDictionary*)dicRecord result:(SHCDBOOLBlock)resultBlock;
-- (void)updateRecord:(NSManagedObject*)record to:(NSDictionary*)dicRecord;
-- (void)deleteEntity:(NSString*)entityName withWhere:(id)where;
+
 - (void)deleteEntity:(NSString*)entityName withWhere:(id)where result:(SHCDCountBlock)resultBlock;
-- (void)deleteRecord:(NSManagedObject*)record;
+- (void)deleteRecord:(NSManagedObject*)record result:(SHCDCountBlock)resultBlock;
+
 - (void)findWithWhere:(id)where entityName:(NSString*)entityName result:(SHCDRecordsBlock)resultBlock;
 - (void)findWithConditions:(SHCoreDataConditions*)conditions entityName:(NSString*)entityName result:(SHCDRecordsBlock)resultBlock;
 
 #pragma mark - Save Context
-- (BOOL)save;
+- (BOOL)saveSyncMOC;
+- (BOOL)saveAsyncMOC;
+
 @end

@@ -23,6 +23,7 @@
 		BCCF70A51B214B4600A92FA0 /* SHCoreDataManager.m in Sources */ = {isa = PBXBuildFile; fileRef = BCCF70A41B214B4600A92FA0 /* SHCoreDataManager.m */; };
 		BCCF70A81B2156EA00A92FA0 /* SHCoreDataHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = BCCF70A71B2156EA00A92FA0 /* SHCoreDataHelper.m */; };
 		BCCF70AA1B2169CC00A92FA0 /* CoreDataTests.m in Sources */ = {isa = PBXBuildFile; fileRef = BCCF70A91B2169CC00A92FA0 /* CoreDataTests.m */; };
+		BCF45C071B291B1900BD9999 /* CoreDataSyncTests.m in Sources */ = {isa = PBXBuildFile; fileRef = BCF45C061B291B1900BD9999 /* CoreDataSyncTests.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -63,6 +64,7 @@
 		BCCF70A61B2156EA00A92FA0 /* SHCoreDataHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SHCoreDataHelper.h; sourceTree = "<group>"; };
 		BCCF70A71B2156EA00A92FA0 /* SHCoreDataHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SHCoreDataHelper.m; sourceTree = "<group>"; };
 		BCCF70A91B2169CC00A92FA0 /* CoreDataTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CoreDataTests.m; sourceTree = "<group>"; };
+		BCF45C061B291B1900BD9999 /* CoreDataSyncTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CoreDataSyncTests.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -146,6 +148,7 @@
 			isa = PBXGroup;
 			children = (
 				BCCF70A91B2169CC00A92FA0 /* CoreDataTests.m */,
+				BCF45C061B291B1900BD9999 /* CoreDataSyncTests.m */,
 				BCCF70811B21418000A92FA0 /* Supporting Files */,
 			);
 			path = SHCoreDataManagerDemoTests;
@@ -299,6 +302,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				BC20D5FB1B280A4800367FE9 /* Teacher.m in Sources */,
+				BCF45C071B291B1900BD9999 /* CoreDataSyncTests.m in Sources */,
 				BCCF70AA1B2169CC00A92FA0 /* CoreDataTests.m in Sources */,
 				BC20D5FE1B280A4900367FE9 /* Student.m in Sources */,
 			);
