@@ -17,12 +17,12 @@ Pod::Spec.new do |s|
   
   s.platform     = :ios, "5.0"
 
-  s.source       = { :git => "https://github.com/superhayden/SHCoreDataManager.git" }
+  s.source       = { :git => "ssh://gitolite@wccios.alpha.wochacha.com:65522/SHCoreDataManager.git", :tag => "1.0.0" }
 
 
   s.source_files  = "SHCoreDataManager", "SHCoreDataManager/**/*.{h,m}"
   #s.exclude_files = "Classes/Exclude"
-  s.public_header_files = "SHCoreDataManager/**/*.h"
+  s.public_header_files = "SHCoreDataManager/SHCoreDataManager.h"
 
 
   s.framework  = "CoreData"
