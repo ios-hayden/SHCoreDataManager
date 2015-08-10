@@ -10,16 +10,16 @@
 #import <XCTest/XCTest.h>
 #import "SHCoreDataManager.h"
 
-@interface CoreDataSyncTests : XCTestCase
+@interface DefaultDatabaseTests : XCTestCase
 @property (nonatomic, assign) NSInteger iState;
 @end
 
-@implementation CoreDataSyncTests
+@implementation DefaultDatabaseTests
 
 - (void)setUp {
     [super setUp];
     self.iState = 0;
-    [[SHCoreDataManager sharedManager] initWithDataModelName:@"CoreDataModel"];
+    [[SHCoreDataManager sharedManager] setDefaultDatabase:@"CoreDataModel"];
 }
 
 - (void)tearDown {
@@ -27,11 +27,11 @@
     [super tearDown];
 }
 
-- (void)test009MultipleThreedInsertAndUpdate{
+- (void)test001MultipleThreedInsertAndUpdate{
     
 }
 
-- (void)test010MultipleThreedInsertAndDelete {
+- (void)test002MultipleThreedInsertAndDelete {
     NSMutableArray *muArrayValues = [self generateTestData];
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         NSArray *array = [[SHCoreDataManager sharedManager] createEntity:@"Teacher" withCount:muArrayValues.count andValues:muArrayValues];
@@ -46,7 +46,7 @@
     [self waitForState:2];
 }
 
-- (void)testMultiple011ThreedInsert {
+- (void)testMultiple003ThreedInsert {
     NSMutableArray *muArrayValues = [self generateTestData];
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         NSArray *array = [[SHCoreDataManager sharedManager] createEntity:@"Teacher" withCount:muArrayValues.count andValues:muArrayValues];

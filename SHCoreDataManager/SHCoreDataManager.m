@@ -25,8 +25,8 @@ static SHCoreDataManager *staticCoreDataManager;
     if (entityName.length==0) {
         return nil;
     }
-    @synchronized(self.dataModel.syncHandleMOC){
-        return [SHCoreDataHelper findWithWhereCondition:where context:self.dataModel.syncHandleMOC andEntityName:entityName];
+    @synchronized(self.dataModel.defaultMOC){
+        return [SHCoreDataHelper findWithWhereCondition:where context:self.dataModel.defaultMOC andEntityName:entityName];
     }
 }
 
@@ -36,11 +36,44 @@ static SHCoreDataManager *staticCoreDataManager;
         return nil;
     }
     NSDictionary *dicConditions = [conditions toDictionary];
-    @synchronized(self.dataModel.syncHandleMOC){
-        return [SHCoreDataHelper findWithConditions:dicConditions context:self.dataModel.syncHandleMOC andEntityName:entityName];
+    @synchronized(self.dataModel.defaultMOC){
+        return [SHCoreDataHelper findWithConditions:dicConditions context:self.dataModel.defaultMOC andEntityName:entityName];
     }
 }
 
+- (NSArray*)findWithWhere:(id)where entityName:(NSString*)entityName inDatabase:(NSString*)databaseName
+{
+    if (entityName.length==0 || databaseName.length==0) {
+        return nil;
+    }
+    NSManagedObjectContext *moc = [self.dataModel mocWithDatabaseName:databaseName];
+    
+    if (moc==nil) {
+        return nil;
+    }
+    
+    @synchronized(moc){
+        return [SHCoreDataHelper findWithWhereCondition:where context:moc andEntityName:entityName];
+    }
+}
+
+- (NSArray*)findWithConditions:(SHCoreDataConditions*)conditions entityName:(NSString*)entityName inDatabase:(NSString*)databaseName
+{
+    if (entityName.length==0 || databaseName.length==0) {
+        return nil;
+    }
+    NSManagedObjectContext *moc = [self.dataModel mocWithDatabaseName:databaseName];
+    
+    if (moc==nil) {
+        return nil;
+    }
+    NSDictionary *dicConditions = [conditions toDictionary];
+    @synchronized(moc){
+        return [SHCoreDataHelper findWithConditions:dicConditions context:moc andEntityName:entityName];
+    }
+}
+
+#pragma mark - Create
 - (NSManagedObject*)createEntity:(NSString*)entityName withValues:(NSDictionary*)dicValues
 {
     if (entityName.length==0) {
@@ -58,9 +91,9 @@ static SHCoreDataManager *staticCoreDataManager;
     }
     
     NSMutableArray *muArrReturn = [[NSMutableArray alloc]initWithCapacity:iCount];
-    @synchronized(self.dataModel.syncHandleMOC){
+    @synchronized(self.dataModel.defaultMOC){
         for(NSUInteger i=0; i<iCount; i++){
-            NSManagedObject *record = [NSEntityDescription insertNewObjectForEntityForName:entityName inManagedObjectContext:self.dataModel.syncHandleMOC];
+            NSManagedObject *record = [NSEntityDescription insertNewObjectForEntityForName:entityName inManagedObjectContext:self.dataModel.defaultMOC];
             if (i<arrValues.count) {
                 id aObject = arrValues[i];
                 if ((NSNull*)aObject != [NSNull null] && [aObject isKindOfClass:[NSDictionary class]]) {
@@ -69,18 +102,55 @@ static SHCoreDataManager *staticCoreDataManager;
             }
             [muArrReturn addObject:record];
         }
-        [self.dataModel saveSyncMOC];
+        [self.dataModel saveDefault];
     }
     return muArrReturn;
 }
 
+- (NSManagedObject*)createEntity:(NSString*)entityName withValues:(NSDictionary*)dicValues inDatabase:(NSString*)strDatabaseName
+{
+    NSArray *arrValues = dicValues==nil ? nil : @[dicValues];
+    NSArray *arrObjects = [self createEntity:entityName withCount:1 andValues:arrValues inDatabase:strDatabaseName];
+    return [arrObjects firstObject];
+}
+
+- (NSArray*)createEntity:(NSString*)entityName withCount:(NSUInteger)iCount andValues:(NSArray*)arrValues inDatabase:(NSString*)strDatabaseName
+{
+    if (iCount==0 || entityName.length==0 || strDatabaseName.length==0) {
+        return nil;
+    }
+    
+    NSManagedObjectContext *moc = [self.dataModel mocWithDatabaseName:strDatabaseName];
+    
+    if (moc==nil) {
+        return nil;
+    }
+    
+    NSMutableArray *muArrReturn = [[NSMutableArray alloc]initWithCapacity:iCount];
+    @synchronized(moc){
+        for(NSUInteger i=0; i<iCount; i++){
+            NSManagedObject *record = [NSEntityDescription insertNewObjectForEntityForName:entityName inManagedObjectContext:moc];
+            if (i<arrValues.count) {
+                id aObject = arrValues[i];
+                if ((NSNull*)aObject != [NSNull null] && [aObject isKindOfClass:[NSDictionary class]]) {
+                    [record setValuesForKeysWithDictionary:(NSDictionary*)aObject];
+                }
+            }
+            [muArrReturn addObject:record];
+        }
+        [self.dataModel saveMOC:moc];
+    }
+    return muArrReturn;
+}
+
+#pragma mark - Update
 - (NSUInteger)updateRecord:(NSManagedObject*)managedObject to:(NSDictionary*)dicValues
 {
     if (managedObject!=nil && dicValues!=nil) {
-        @synchronized(self.dataModel.syncHandleMOC){
-            if ([self.dataModel.syncHandleMOC objectWithID:managedObject.objectID] == managedObject) {
+        @synchronized(self.dataModel.defaultMOC){
+            if ([self.dataModel.defaultMOC objectWithID:managedObject.objectID] == managedObject) {
                 [managedObject setValuesForKeysWithDictionary:dicValues];
-                if ([self.dataModel saveSyncMOC]) {
+                if ([self.dataModel saveDefault]) {
                     return 1;
                 }
             }
@@ -96,13 +166,13 @@ static SHCoreDataManager *staticCoreDataManager;
     }
     
     NSUInteger iUpdateCount = 0;
-    @synchronized(self.dataModel.syncHandleMOC){
-        NSArray *arrObjects = [SHCoreDataHelper findWithWhereCondition:where context:self.dataModel.syncHandleMOC andEntityName:entityName];
+    @synchronized(self.dataModel.defaultMOC){
+        NSArray *arrObjects = [SHCoreDataHelper findWithWhereCondition:where context:self.dataModel.defaultMOC andEntityName:entityName];
         for (NSManagedObject *aObject in arrObjects) {
             [aObject setValuesForKeysWithDictionary:dicValues];
             iUpdateCount ++;
         }
-        BOOL bSaved = [self.dataModel saveSyncMOC];
+        BOOL bSaved = [self.dataModel saveDefault];
         if (!bSaved) {
             iUpdateCount = 0;
         }
@@ -110,13 +180,61 @@ static SHCoreDataManager *staticCoreDataManager;
     return iUpdateCount;
 }
 
+- (NSUInteger)updateRecord:(NSManagedObject*)managedObject to:(NSDictionary*)dicValues inDatabase:(NSString*)strDatabaseName
+{
+    if (managedObject==nil || dicValues==nil || strDatabaseName.length==0) {
+        return 0;
+    }
+    NSManagedObjectContext *moc = [self.dataModel mocWithDatabaseName:strDatabaseName];
+    if (moc==nil) {
+        return 0;
+    }
+    NSUInteger iCount = 0;
+    @synchronized(moc){
+        if ([moc objectWithID:managedObject.objectID] == managedObject) {
+            [managedObject setValuesForKeysWithDictionary:dicValues];
+            if ([self.dataModel saveMOC:moc]) {
+                iCount = 1;
+            }
+        }
+    }
+    return iCount;
+}
+
+- (NSUInteger)updateEntity:(NSString*)entityName to:(NSDictionary*)dicValues withWhere:(id)where inDatabase:(NSString*)strDatabaseName
+{
+    if (entityName.length==0 || dicValues==nil || strDatabaseName.length==0) {
+        return 0;
+    }
+    
+    NSManagedObjectContext *moc = [self.dataModel mocWithDatabaseName:strDatabaseName];
+    if (moc==nil) {
+        return 0;
+    }
+    
+    NSUInteger iUpdateCount = 0;
+    @synchronized(moc){
+        NSArray *arrObjects = [SHCoreDataHelper findWithWhereCondition:where context:moc andEntityName:entityName];
+        for (NSManagedObject *aObject in arrObjects) {
+            [aObject setValuesForKeysWithDictionary:dicValues];
+            iUpdateCount ++;
+        }
+        BOOL bSaved = [self.dataModel saveMOC:moc];
+        if (!bSaved) {
+            iUpdateCount = 0;
+        }
+    }
+    return iUpdateCount;
+}
+
+#pragma mark - Delete
 - (NSUInteger)deleteRecord:(NSManagedObject*)managedObject
 {
     if (managedObject!=nil) {
-        @synchronized(self.dataModel.syncHandleMOC){
-            if ([self.dataModel.syncHandleMOC objectWithID:managedObject.objectID] == managedObject) {
-                [self.dataModel.syncHandleMOC deleteObject:managedObject];
-                if ([self.dataModel saveSyncMOC]) {
+        @synchronized(self.dataModel.defaultMOC){
+            if ([self.dataModel.defaultMOC objectWithID:managedObject.objectID] == managedObject) {
+                [self.dataModel.defaultMOC deleteObject:managedObject];
+                if ([self.dataModel saveDefault]) {
                     return 1;
                 }
             }
@@ -132,13 +250,13 @@ static SHCoreDataManager *staticCoreDataManager;
     }
     
     NSUInteger iDeletedCount = 0;
-    @synchronized(self.dataModel.syncHandleMOC){
-        NSArray *arrObjects = [SHCoreDataHelper findWithWhereCondition:where context:self.dataModel.syncHandleMOC andEntityName:entityName];
+    @synchronized(self.dataModel.defaultMOC){
+        NSArray *arrObjects = [SHCoreDataHelper findWithWhereCondition:where context:self.dataModel.defaultMOC andEntityName:entityName];
         for (NSManagedObject *aObject in arrObjects) {
-            [self.dataModel.syncHandleMOC deleteObject:aObject];
+            [self.dataModel.defaultMOC deleteObject:aObject];
             iDeletedCount ++;
         }
-        BOOL bSaved = [self.dataModel saveSyncMOC];
+        BOOL bSaved = [self.dataModel saveDefault];
         if (!bSaved) {
             iDeletedCount = 0;
         }
@@ -146,193 +264,92 @@ static SHCoreDataManager *staticCoreDataManager;
     return iDeletedCount;
 }
 
-#pragma mark - CURD Asynchronous Methods
-- (void)createWithEntity:(NSString*)entityName result:(SHCDRecordBlock)resultBlock
+- (NSUInteger)deleteRecord:(NSManagedObject*)managedObject inDatabase:(NSString*)strDatabaseName
 {
-    SHCDRecordBlock result = [resultBlock copy];
-    if (entityName==nil || resultBlock==nil) {
-        if (result) {
-            result(nil);
-        }
-        return;
+    if (managedObject==nil || strDatabaseName.length==0) {
+        return 0;
     }
     
-    __weak NSManagedObjectContext *context = self.dataModel.asyncHandleMOC;
-    [context performBlock:^{
-        NSManagedObject *record = [NSEntityDescription insertNewObjectForEntityForName:entityName inManagedObjectContext:context];
-        if (result) {
-            result(record);
-        }
-    }];
-}
-
-- (void)createWithEntity:(NSString*)entityName count:(NSUInteger)count result:(SHCDRecordsBlock)resultBlock
-{
-    SHCDRecordsBlock result = [resultBlock copy];
-    if (entityName==nil || resultBlock==nil) {
-        if (result) {
-            result(nil);
-        }
-        return;
-    }
-    count = MAX(0, count);
-    __weak NSManagedObjectContext *context = self.dataModel.asyncHandleMOC;
-    [context performBlock:^{
-        NSMutableArray *muArray = [[NSMutableArray alloc]initWithCapacity:count];
-        for (int i = 0; i<count; i++) {
-            NSManagedObject *record = [NSEntityDescription insertNewObjectForEntityForName:entityName inManagedObjectContext:context];
-            [muArray addObject:record];
-        }
-        result(muArray);
-    }];
-}
-
-- (void)createAndSaveWithRecord:(NSDictionary*)dicRecord entity:(NSString*)entityName
-{
-    if (dicRecord==nil || entityName==nil) {
-        return;
-    }
-    __weak NSManagedObjectContext *context = self.dataModel.asyncHandleMOC;
-    [context performBlock:^{
-        NSManagedObject *record = [NSEntityDescription insertNewObjectForEntityForName:entityName inManagedObjectContext:context];
-        [record setValuesForKeysWithDictionary:dicRecord];
-        [self.dataModel saveAsyncMOC];
-    }];
-}
-
-- (void)updateEntity:(NSString*)entityName withWhere:(id)where to:(NSDictionary*)dicRecord  result:(SHCDCountBlock)resultBlock
-{
-    SHCDCountBlock result = [resultBlock copy];
-    if (entityName==nil || dicRecord==nil) {
-        if (result) {
-            result(0);
-        }
-        return;
+    NSManagedObjectContext *moc = [self.dataModel mocWithDatabaseName:strDatabaseName];
+    if (moc==nil) {
+        return 0;
     }
     
-    [self findWithWhere:where entityName:entityName result:^(NSArray *records) {
-        for (NSManagedObject *obj in records) {
-            [obj setValuesForKeysWithDictionary:dicRecord];
-        }
-        [self.dataModel saveAsyncMOC];
-        if (result) {
-            result(records.count);
-        }
-    }];
-}
-
-- (void)updateRecord:(NSManagedObject*)record to:(NSDictionary*)dicRecord result:(SHCDBOOLBlock)resultBlock
-{
-    SHCDBOOLBlock result = [resultBlock copy];
-    if (record==nil || dicRecord==nil) {
-        if (result) {
-            result(NO);
-        }
-        return;
-    }
-    
-    __weak NSManagedObjectContext *context = self.dataModel.asyncHandleMOC;
-    [context performBlock:^{
-        [record setValuesForKeysWithDictionary:dicRecord];
-        BOOL bResult = [self.dataModel.asyncHandleMOC save:nil];
-        if (result) {
-            result(bResult);
-        }
-    }];
-}
-
-- (void)deleteEntity:(NSString*)entityName withWhere:(id)where result:(SHCDCountBlock)resultBlock
-{
-    SHCDCountBlock result = [resultBlock copy];
-    if (entityName==nil) {
-        if (result) {
-            result(0);
-        }
-        return;
-    }
-    
-    [self findWithWhere:where entityName:entityName result:^(NSArray *records) {
-        for (NSManagedObject *obj in records) {
-            [self.dataModel.asyncHandleMOC deleteObject:obj];
-        }
-        [self.dataModel.asyncHandleMOC save:nil];
-        if (result) {
-            result(records.count);
-        }
-    }];
-}
-
-- (void)deleteRecord:(NSManagedObject*)record result:(SHCDCountBlock)resultBlock
-{
-    SHCDCountBlock result = [resultBlock copy];
-    if (record==nil) {
-        if (result) {
-            result(0);
-        }
-        return;
-    }
-    
-    __weak NSManagedObjectContext *context = self.dataModel.asyncHandleMOC;
-    [context performBlock:^{
-        [context deleteObject:record];
-        BOOL bSaved = [self.dataModel.asyncHandleMOC save:nil];
-        if (result) {
-            result(bSaved ? 1 : 0);
-        }
-    }];
-}
-
-- (void)findWithWhere:(id)where entityName:(NSString*)entityName result:(SHCDRecordsBlock)resultBlock
-{
-    SHCoreDataConditions *conditions;
-    if (where) {
-        conditions = [[SHCoreDataConditions alloc]init];
-        if ([where isKindOfClass:[NSFetchRequest class]]) {
-            conditions.fetch = (NSFetchRequest*)where;
-        }else{
-            conditions.where = where;
+    NSUInteger iCount = 0;
+    @synchronized(moc){
+        if ([moc objectWithID:managedObject.objectID] == managedObject) {
+            [moc deleteObject:managedObject];
+            if ([self.dataModel saveMOC:moc]) {
+                iCount = 1;
+            }
         }
     }
-    [self findWithConditions:conditions entityName:entityName result:resultBlock];
+    return iCount;
 }
 
-- (void)findWithConditions:(SHCoreDataConditions*)conditions entityName:(NSString*)entityName result:(SHCDRecordsBlock)resultBlock
+- (NSUInteger)deleteEntity:(NSString*)entityName withWhere:(id)where inDatabase:(NSString*)strDatabaseName
 {
-    SHCDRecordsBlock result = [resultBlock copy];
-    if (entityName==nil || resultBlock==nil) {
-        if (result) {
-            result(nil);
-        }
-        return;
+    if (entityName.length==0 || strDatabaseName.length==0) {
+        return 0;
     }
     
-    NSDictionary *dicConditions = [conditions toDictionary];
+    NSManagedObjectContext *moc = [self.dataModel mocWithDatabaseName:strDatabaseName];
+    if (moc==nil) {
+        return 0;
+    }
     
-    __weak NSManagedObjectContext *context = self.dataModel.asyncHandleMOC;
-    [context performBlock:^{
-        NSArray *array = [SHCoreDataHelper findWithConditions:dicConditions context:context andEntityName:entityName];
-        if (result) {
-            result(array);
+    NSUInteger iDeletedCount = 0;
+    @synchronized(moc){
+        NSArray *arrObjects = [SHCoreDataHelper findWithWhereCondition:where context:moc andEntityName:entityName];
+        for (NSManagedObject *aObject in arrObjects) {
+            [moc deleteObject:aObject];
+            iDeletedCount ++;
         }
-    }];
+        BOOL bSaved = [self.dataModel saveMOC:moc];
+        if (!bSaved) {
+            iDeletedCount = 0;
+        }
+    }
+    return iDeletedCount;
 }
 
 #pragma mark - Save Context
-- (BOOL)saveSyncMOC
+- (BOOL)save
 {
-    return [self.dataModel saveSyncMOC];
+    BOOL bSuccess = NO;
+    @synchronized(self.dataModel.defaultMOC){
+        bSuccess = [self.dataModel saveDefault];
+    }
+    return bSuccess;
 }
 
-- (BOOL)saveAsyncMOC
+- (BOOL)saveWithDatabaseName:(NSString*)strDatabaseName
 {
-    return [self.dataModel.asyncHandleMOC save:nil];
+    NSManagedObjectContext *moc = [self.dataModel mocWithDatabaseName:strDatabaseName];
+    if (moc==nil) {
+        return NO;
+    }
+    BOOL bSuccess = NO;
+    @synchronized(moc){
+        bSuccess = [self.dataModel saveMOC:moc];
+    }
+    return bSuccess;
 }
 
 #pragma mark - Public Init Methods
-- (void)initWithDataModelName:(NSString*)name
+- (BOOL)setDefaultDatabase:(NSString*)strDatabaseName
 {
-    self.dataModel.dataModelName = name;
-    [self.dataModel initIfNeed];
+    return [self.dataModel setDefaultDatabase:strDatabaseName];
+}
+
+- (BOOL)addDatabase:(NSString*)strDatabaseName
+{
+    return [self.dataModel addDatabase:strDatabaseName];
+}
+
+- (BOOL)addDatabase:(NSString*)strDatabaseName withManagedObjectModel:(NSManagedObjectModel*)mom
+{
+    return [self.dataModel addDatabase:strDatabaseName withManagedObjectModel:mom];
 }
 
 #pragma mark - Lifecycle

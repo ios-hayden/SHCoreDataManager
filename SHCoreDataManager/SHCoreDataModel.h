@@ -11,18 +11,14 @@
 
 @interface SHCoreDataModel : NSObject
 
-@property (strong, nonatomic) NSString *dataModelName;
+@property (readonly, strong, nonatomic) NSManagedObjectContext *defaultMOC;
 
-@property (readonly, strong, nonatomic) NSManagedObjectModel *managedObjectModel;
-@property (readonly, strong, nonatomic) NSPersistentStoreCoordinator *persistentStoreCoordinator;
+- (NSManagedObjectContext*)mocWithDatabaseName:(NSString*)strDatabaseName;
+- (BOOL)setDefaultDatabase:(NSString*)strDatabaseName;
+- (BOOL)addDatabase:(NSString*)strDatabaseName;
+- (BOOL)addDatabase:(NSString*)strDatabaseName withManagedObjectModel:(NSManagedObjectModel*)mom;
 
-//该MOC用于读、改、删操作，在私有非主线程进行，但是读到的数据可能不是同步数据（没有进行merge）
-@property (readonly, strong, nonatomic) NSManagedObjectContext *asyncHandleMOC;
-
-@property (readonly, strong, nonatomic) NSManagedObjectContext *syncHandleMOC;
-
-- (BOOL)saveSyncMOC;
-- (void)saveAsyncMOC;
-- (void)initIfNeed;
+- (BOOL)saveDefault;
+- (BOOL)saveMOC:(NSManagedObjectContext*)moc;
 
 @end

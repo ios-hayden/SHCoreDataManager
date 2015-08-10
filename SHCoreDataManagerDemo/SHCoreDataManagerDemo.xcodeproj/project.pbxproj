@@ -7,9 +7,15 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		BC074DBE1B74ACA00079E2F9 /* UseXCModelTests.m in Sources */ = {isa = PBXBuildFile; fileRef = BC074DBD1B74ACA00079E2F9 /* UseXCModelTests.m */; };
+		BC074DC11B74ACBF0079E2F9 /* Model.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = BC074DBF1B74ACBF0079E2F9 /* Model.xcdatamodeld */; };
+		BC074DC71B74AD510079E2F9 /* Grade.m in Sources */ = {isa = PBXBuildFile; fileRef = BC074DC61B74AD510079E2F9 /* Grade.m */; };
+		BC074DC91B74AFAA0079E2F9 /* UseCustomModelTests.m in Sources */ = {isa = PBXBuildFile; fileRef = BC074DC81B74AFAA0079E2F9 /* UseCustomModelTests.m */; };
+		BC074DCC1B74B3B00079E2F9 /* School.m in Sources */ = {isa = PBXBuildFile; fileRef = BC074DCB1B74B3B00079E2F9 /* School.m */; };
 		BC20D5FB1B280A4800367FE9 /* Teacher.m in Sources */ = {isa = PBXBuildFile; fileRef = BC20D5FA1B280A4800367FE9 /* Teacher.m */; };
 		BC20D5FE1B280A4900367FE9 /* Student.m in Sources */ = {isa = PBXBuildFile; fileRef = BC20D5FD1B280A4900367FE9 /* Student.m */; };
 		BC20D6141B280DAD00367FE9 /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BCCF709C1B21449900A92FA0 /* CoreData.framework */; };
+		BC6110521B78444600DC44B1 /* CustomDTM.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = BC6110501B78444600DC44B1 /* CustomDTM.xcdatamodeld */; };
 		BCCF706A1B21417F00A92FA0 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = BCCF70691B21417F00A92FA0 /* main.m */; };
 		BCCF706D1B21417F00A92FA0 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = BCCF706C1B21417F00A92FA0 /* AppDelegate.m */; };
 		BCCF70701B21417F00A92FA0 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = BCCF706F1B21417F00A92FA0 /* ViewController.m */; };
@@ -22,8 +28,7 @@
 		BCCF70A21B21461E00A92FA0 /* SHCoreDataConditions.m in Sources */ = {isa = PBXBuildFile; fileRef = BCCF70A11B21461E00A92FA0 /* SHCoreDataConditions.m */; };
 		BCCF70A51B214B4600A92FA0 /* SHCoreDataManager.m in Sources */ = {isa = PBXBuildFile; fileRef = BCCF70A41B214B4600A92FA0 /* SHCoreDataManager.m */; };
 		BCCF70A81B2156EA00A92FA0 /* SHCoreDataHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = BCCF70A71B2156EA00A92FA0 /* SHCoreDataHelper.m */; };
-		BCCF70AA1B2169CC00A92FA0 /* CoreDataTests.m in Sources */ = {isa = PBXBuildFile; fileRef = BCCF70A91B2169CC00A92FA0 /* CoreDataTests.m */; };
-		BCF45C071B291B1900BD9999 /* CoreDataSyncTests.m in Sources */ = {isa = PBXBuildFile; fileRef = BCF45C061B291B1900BD9999 /* CoreDataSyncTests.m */; };
+		BCF45C071B291B1900BD9999 /* DefaultDatabaseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = BCF45C061B291B1900BD9999 /* DefaultDatabaseTests.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -37,10 +42,19 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		BC074DBD1B74ACA00079E2F9 /* UseXCModelTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UseXCModelTests.m; sourceTree = "<group>"; };
+		BC074DC01B74ACBF0079E2F9 /* Model.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Model.xcdatamodel; sourceTree = "<group>"; };
+		BC074DC51B74AD510079E2F9 /* Grade.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Grade.h; sourceTree = "<group>"; };
+		BC074DC61B74AD510079E2F9 /* Grade.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Grade.m; sourceTree = "<group>"; };
+		BC074DC81B74AFAA0079E2F9 /* UseCustomModelTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UseCustomModelTests.m; sourceTree = "<group>"; };
+		BC074DCA1B74B3B00079E2F9 /* School.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = School.h; sourceTree = "<group>"; };
+		BC074DCB1B74B3B00079E2F9 /* School.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = School.m; sourceTree = "<group>"; };
+		BC074DCD1B74B6120079E2F9 /* CoreDataModel 1.1.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "CoreDataModel 1.1.xcdatamodel"; sourceTree = "<group>"; };
 		BC20D5F91B280A4800367FE9 /* Teacher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Teacher.h; sourceTree = "<group>"; };
 		BC20D5FA1B280A4800367FE9 /* Teacher.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Teacher.m; sourceTree = "<group>"; };
 		BC20D5FC1B280A4900367FE9 /* Student.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Student.h; sourceTree = "<group>"; };
 		BC20D5FD1B280A4900367FE9 /* Student.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Student.m; sourceTree = "<group>"; };
+		BC6110511B78444600DC44B1 /* CustomDTM.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = CustomDTM.xcdatamodel; sourceTree = "<group>"; };
 		BCCF70641B21417F00A92FA0 /* SHCoreDataManagerDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SHCoreDataManagerDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		BCCF70681B21417F00A92FA0 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		BCCF70691B21417F00A92FA0 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -63,8 +77,7 @@
 		BCCF70A41B214B4600A92FA0 /* SHCoreDataManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SHCoreDataManager.m; sourceTree = "<group>"; };
 		BCCF70A61B2156EA00A92FA0 /* SHCoreDataHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SHCoreDataHelper.h; sourceTree = "<group>"; };
 		BCCF70A71B2156EA00A92FA0 /* SHCoreDataHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SHCoreDataHelper.m; sourceTree = "<group>"; };
-		BCCF70A91B2169CC00A92FA0 /* CoreDataTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CoreDataTests.m; sourceTree = "<group>"; };
-		BCF45C061B291B1900BD9999 /* CoreDataSyncTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CoreDataSyncTests.m; sourceTree = "<group>"; };
+		BCF45C061B291B1900BD9999 /* DefaultDatabaseTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DefaultDatabaseTests.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -94,6 +107,10 @@
 				BC20D5FD1B280A4900367FE9 /* Student.m */,
 				BC20D5F91B280A4800367FE9 /* Teacher.h */,
 				BC20D5FA1B280A4800367FE9 /* Teacher.m */,
+				BC074DC51B74AD510079E2F9 /* Grade.h */,
+				BC074DC61B74AD510079E2F9 /* Grade.m */,
+				BC074DCA1B74B3B00079E2F9 /* School.h */,
+				BC074DCB1B74B3B00079E2F9 /* School.m */,
 			);
 			name = ManagedObjects;
 			sourceTree = "<group>";
@@ -130,7 +147,9 @@
 				BCCF70741B21417F00A92FA0 /* Images.xcassets */,
 				BCCF70761B21417F00A92FA0 /* LaunchScreen.xib */,
 				BCCF70951B2142C400A92FA0 /* CoreDataModel.xcdatamodeld */,
+				BC074DBF1B74ACBF0079E2F9 /* Model.xcdatamodeld */,
 				BCCF70671B21417F00A92FA0 /* Supporting Files */,
+				BC6110501B78444600DC44B1 /* CustomDTM.xcdatamodeld */,
 			);
 			path = SHCoreDataManagerDemo;
 			sourceTree = "<group>";
@@ -147,8 +166,9 @@
 		BCCF70801B21417F00A92FA0 /* SHCoreDataManagerDemoTests */ = {
 			isa = PBXGroup;
 			children = (
-				BCCF70A91B2169CC00A92FA0 /* CoreDataTests.m */,
-				BCF45C061B291B1900BD9999 /* CoreDataSyncTests.m */,
+				BCF45C061B291B1900BD9999 /* DefaultDatabaseTests.m */,
+				BC074DBD1B74ACA00079E2F9 /* UseXCModelTests.m */,
+				BC074DC81B74AFAA0079E2F9 /* UseCustomModelTests.m */,
 				BCCF70811B21418000A92FA0 /* Supporting Files */,
 			);
 			path = SHCoreDataManagerDemoTests;
@@ -287,12 +307,16 @@
 			buildActionMask = 2147483647;
 			files = (
 				BCCF70A51B214B4600A92FA0 /* SHCoreDataManager.m in Sources */,
+				BC074DC71B74AD510079E2F9 /* Grade.m in Sources */,
 				BCCF70701B21417F00A92FA0 /* ViewController.m in Sources */,
 				BCCF70A21B21461E00A92FA0 /* SHCoreDataConditions.m in Sources */,
+				BC074DCC1B74B3B00079E2F9 /* School.m in Sources */,
 				BCCF706D1B21417F00A92FA0 /* AppDelegate.m in Sources */,
 				BCCF70971B2142C400A92FA0 /* CoreDataModel.xcdatamodeld in Sources */,
+				BC074DC11B74ACBF0079E2F9 /* Model.xcdatamodeld in Sources */,
 				BCCF709B1B2143C600A92FA0 /* SHCoreDataModel.m in Sources */,
 				BCCF70A81B2156EA00A92FA0 /* SHCoreDataHelper.m in Sources */,
+				BC6110521B78444600DC44B1 /* CustomDTM.xcdatamodeld in Sources */,
 				BCCF706A1B21417F00A92FA0 /* main.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -301,10 +325,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BC074DBE1B74ACA00079E2F9 /* UseXCModelTests.m in Sources */,
 				BC20D5FB1B280A4800367FE9 /* Teacher.m in Sources */,
-				BCF45C071B291B1900BD9999 /* CoreDataSyncTests.m in Sources */,
-				BCCF70AA1B2169CC00A92FA0 /* CoreDataTests.m in Sources */,
+				BCF45C071B291B1900BD9999 /* DefaultDatabaseTests.m in Sources */,
 				BC20D5FE1B280A4900367FE9 /* Student.m in Sources */,
+				BC074DC91B74AFAA0079E2F9 /* UseCustomModelTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -587,12 +612,34 @@
 /* End XCConfigurationList section */
 
 /* Begin XCVersionGroup section */
+		BC074DBF1B74ACBF0079E2F9 /* Model.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				BC074DC01B74ACBF0079E2F9 /* Model.xcdatamodel */,
+			);
+			currentVersion = BC074DC01B74ACBF0079E2F9 /* Model.xcdatamodel */;
+			path = Model.xcdatamodeld;
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+		BC6110501B78444600DC44B1 /* CustomDTM.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				BC6110511B78444600DC44B1 /* CustomDTM.xcdatamodel */,
+			);
+			currentVersion = BC6110511B78444600DC44B1 /* CustomDTM.xcdatamodel */;
+			name = CustomDTM.xcdatamodeld;
+			path = ../../SHCoreDataManagerResource/CustomDTM.xcdatamodeld;
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
 		BCCF70951B2142C400A92FA0 /* CoreDataModel.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
+				BC074DCD1B74B6120079E2F9 /* CoreDataModel 1.1.xcdatamodel */,
 				BCCF70961B2142C400A92FA0 /* CoreDataModel.xcdatamodel */,
 			);
-			currentVersion = BCCF70961B2142C400A92FA0 /* CoreDataModel.xcdatamodel */;
+			currentVersion = BC074DCD1B74B6120079E2F9 /* CoreDataModel 1.1.xcdatamodel */;
 			path = CoreDataModel.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;

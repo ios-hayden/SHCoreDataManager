@@ -8,48 +8,127 @@
 
 #import "SHCoreDataModel.h"
 
+@interface SHCoreDataModel()
+
+@property (strong, nonatomic) NSString *defaultDatabaseName;
+
+@property (strong, nonatomic) NSMutableDictionary *muDicPSCs;
+@property (strong, nonatomic) NSMutableDictionary *muDicMOMs;
+@property (strong, nonatomic) NSMutableDictionary *muDicMOCs;
+
+@property (strong, nonatomic) NSManagedObjectModel *defaultMOM;
+@property (strong, nonatomic) NSPersistentStoreCoordinator *defaultPSC;
+
+@end
+
 @implementation SHCoreDataModel
-@synthesize managedObjectModel = _managedObjectModel;
-@synthesize persistentStoreCoordinator = _persistentStoreCoordinator;
-@synthesize asyncHandleMOC = _asyncHandleMOC;
-@synthesize syncHandleMOC = _syncHandleMOC;
+@synthesize defaultMOC = _defaultMOC;
+@synthesize defaultPSC = _defaultPSC;
+@synthesize defaultMOM = _defaultMOM;
+@synthesize muDicMOCs = _muDicMOCs;
+@synthesize muDicPSCs = _muDicPSCs;
+@synthesize muDicMOMs = _muDicMOMs;
 
 #pragma mark - Lifecycle
 - (id)init
 {
     self = [super init];
     if (self) {
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(mocDidSaveNotification:) name:NSManagedObjectContextDidSaveNotification object:nil];
+        _muDicMOMs = [[NSMutableDictionary alloc]init];
+        _muDicPSCs = [[NSMutableDictionary alloc]init];
+        _muDicMOCs = [[NSMutableDictionary alloc]init];
     }
     return self;
 }
 
 - (void)dealloc
 {
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
+    
 }
 
 #pragma mark - Public Methods
-- (void)initIfNeed
+- (NSManagedObjectContext*)mocWithDatabaseName:(NSString*)strDatabaseName
 {
-    [self.syncHandleMOC class];
-    [self.asyncHandleMOC class];
-}
-
-- (BOOL)saveSyncMOC
-{
-    @synchronized(self.syncHandleMOC){
-        NSError *error;
-        return [self.syncHandleMOC save:&error];
+    if (strDatabaseName.length==0) {
+        return nil;
     }
+    
+    return [_muDicMOCs valueForKey:strDatabaseName];
 }
 
-- (void)saveAsyncMOC
+- (BOOL)setDefaultDatabase:(NSString*)strDatabaseName
 {
-    [self.asyncHandleMOC performBlock:^{
-        NSError *error;
-        [self.asyncHandleMOC save:&error];
-    }];
+    if (strDatabaseName.length>0 && ![self existDatabase:strDatabaseName]) {
+        NSURL *modelURL = [[NSBundle mainBundle] URLForResource:strDatabaseName withExtension:@"momd"];
+        NSManagedObjectModel *mom = [[NSManagedObjectModel alloc] initWithContentsOfURL:modelURL];
+        if (mom) {
+            return [self addDatabase:strDatabaseName withManagedObjectModel:mom default:YES];
+        }
+    }
+    return NO;
+}
+
+- (BOOL)addDatabase:(NSString*)strDatabaseName
+{
+    if (strDatabaseName.length>0 && ![self existDatabase:strDatabaseName]) {
+        NSURL *modelURL = [[NSBundle mainBundle] URLForResource:strDatabaseName withExtension:@"momd"];
+        NSManagedObjectModel *mom = [[NSManagedObjectModel alloc] initWithContentsOfURL:modelURL];
+        if (mom) {
+            return [self addDatabase:strDatabaseName withManagedObjectModel:mom];
+        }
+    }
+    return NO;
+}
+
+- (BOOL)addDatabase:(NSString*)strDatabaseName withManagedObjectModel:(NSManagedObjectModel*)mom
+{
+    return [self addDatabase:strDatabaseName withManagedObjectModel:mom default:NO];
+}
+
+- (BOOL)addDatabase:(NSString*)strDatabaseName withManagedObjectModel:(NSManagedObjectModel*)mom default:(BOOL)bDefault
+{
+    if (mom && strDatabaseName.length>0 && ![self existDatabase:strDatabaseName]) {
+        NSLog(@"**********************\n");
+        
+        for (id obj in mom.versionIdentifiers) {
+            NSLog(@"==>%@",obj);
+        }
+        NSLog(@"**********************\n");
+        NSString *dataFileName = [NSString stringWithFormat:@"%@.sqlite", strDatabaseName];
+        NSURL *storeURL = [[self applicationDocumentsDirectory] URLByAppendingPathComponent:dataFileName];
+        
+        NSError *error = nil;
+        NSDictionary *options = [NSDictionary dictionaryWithObjectsAndKeys:
+                                 [NSNumber numberWithBool:YES], NSMigratePersistentStoresAutomaticallyOption,
+                                 [NSNumber numberWithBool:YES], NSInferMappingModelAutomaticallyOption, nil];
+        NSPersistentStoreCoordinator *psc = [[NSPersistentStoreCoordinator alloc] initWithManagedObjectModel: mom];
+        if ([psc addPersistentStoreWithType:NSSQLiteStoreType configuration:nil URL:storeURL options:options error:&error]) {
+            NSManagedObjectContext *moc = [[NSManagedObjectContext alloc]init];
+            [moc setPersistentStoreCoordinator:psc];
+            if (bDefault) {
+                _defaultMOC = moc;
+                _defaultMOM = mom;
+                _defaultPSC = psc;
+                self.defaultDatabaseName = strDatabaseName;
+            }else{
+                [_muDicMOMs setValue:mom forKey:strDatabaseName];
+                [_muDicPSCs setValue:psc forKey:strDatabaseName];
+                [_muDicMOCs setValue:moc forKey:strDatabaseName];
+            }
+            return YES;
+        }
+    }
+    return NO;
+}
+
+- (BOOL)saveDefault
+{
+    return [_defaultMOC save:nil];
+}
+
+- (BOOL)saveMOC:(NSManagedObjectContext*)moc
+{
+    return [moc save:nil];
 }
 
 #pragma mark - Private Methods
@@ -58,72 +137,16 @@
     return [[[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask] lastObject];
 }
 
-#pragma mark - Notification Handle
-- (void)mocDidSaveNotification:(NSNotification *)notification
+- (BOOL)existDatabase:(NSString*)strDatabaseName
 {
-    NSManagedObjectContext *saveContext=[notification object];
-    if (saveContext == self.asyncHandleMOC) {
-        __weak NSManagedObjectContext *weakMOC = self.syncHandleMOC;
-        dispatch_sync(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-            [weakMOC mergeChangesFromContextDidSaveNotification:notification];
-        });
-    }else if(saveContext == self.syncHandleMOC){
-        __weak NSManagedObjectContext *weakMOC = self.asyncHandleMOC;
-        [weakMOC performBlock:^{
-            [weakMOC mergeChangesFromContextDidSaveNotification:notification];
-        }];
+    for (NSString *strName in [_muDicPSCs allKeys]) {
+        if ([strDatabaseName isEqualToString:strName]) {
+            return YES;
+        }
     }
-}
-
-#pragma mark - Getters
-- (NSManagedObjectModel *)managedObjectModel {
-    if (_managedObjectModel != nil) {
-        return _managedObjectModel;
+    if ([strDatabaseName isEqualToString:self.defaultDatabaseName]) {
+        return YES;
     }
-    NSURL *modelURL = [[NSBundle mainBundle] URLForResource:self.dataModelName withExtension:@"momd"];
-    _managedObjectModel = [[NSManagedObjectModel alloc] initWithContentsOfURL:modelURL];
-    return _managedObjectModel;
-}
-
-- (NSPersistentStoreCoordinator *)persistentStoreCoordinator {
-    if (_persistentStoreCoordinator != nil) {
-        return _persistentStoreCoordinator;
-    }
-    
-    NSString *dataFileName = [NSString stringWithFormat:@"%@.sqlite", self.dataModelName];
-    NSURL *storeURL = [[self applicationDocumentsDirectory] URLByAppendingPathComponent:dataFileName];
-    
-    NSError *error = nil;
-    NSDictionary *options = [NSDictionary dictionaryWithObjectsAndKeys:
-                             [NSNumber numberWithBool:YES], NSMigratePersistentStoresAutomaticallyOption,
-                             [NSNumber numberWithBool:YES], NSInferMappingModelAutomaticallyOption, nil];
-    _persistentStoreCoordinator = [[NSPersistentStoreCoordinator alloc] initWithManagedObjectModel: [self managedObjectModel]];
-    if (![_persistentStoreCoordinator addPersistentStoreWithType:NSSQLiteStoreType configuration:nil URL:storeURL options:options error:&error]) {
-        // Handle error
-    }
-    
-    return _persistentStoreCoordinator;
-}
-
-- (NSManagedObjectContext *)asyncHandleMOC
-{
-    if (_asyncHandleMOC != nil) {
-        return _asyncHandleMOC;
-    }
-    
-    _asyncHandleMOC = [[NSManagedObjectContext alloc]initWithConcurrencyType:NSPrivateQueueConcurrencyType];
-    [_asyncHandleMOC setPersistentStoreCoordinator:self.persistentStoreCoordinator];
-    return _asyncHandleMOC;
-}
-
-- (NSManagedObjectContext *)syncHandleMOC
-{
-    if (_syncHandleMOC != nil) {
-        return _syncHandleMOC;
-    }
-    
-    _syncHandleMOC = [[NSManagedObjectContext alloc]init];
-    [_syncHandleMOC setPersistentStoreCoordinator:self.persistentStoreCoordinator];
-    return _syncHandleMOC;
+    return NO;
 }
 @end
