@@ -55,6 +55,7 @@
 		BC20D5FC1B280A4900367FE9 /* Student.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Student.h; sourceTree = "<group>"; };
 		BC20D5FD1B280A4900367FE9 /* Student.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Student.m; sourceTree = "<group>"; };
 		BC6110511B78444600DC44B1 /* CustomDTM.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = CustomDTM.xcdatamodel; sourceTree = "<group>"; };
+		BC6110851B784AF700DC44B1 /* CustomDTM 1.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "CustomDTM 1.xcdatamodel"; sourceTree = "<group>"; };
 		BCCF70641B21417F00A92FA0 /* SHCoreDataManagerDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SHCoreDataManagerDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		BCCF70681B21417F00A92FA0 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		BCCF70691B21417F00A92FA0 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -625,9 +626,10 @@
 		BC6110501B78444600DC44B1 /* CustomDTM.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
+				BC6110851B784AF700DC44B1 /* CustomDTM 1.xcdatamodel */,
 				BC6110511B78444600DC44B1 /* CustomDTM.xcdatamodel */,
 			);
-			currentVersion = BC6110511B78444600DC44B1 /* CustomDTM.xcdatamodel */;
+			currentVersion = BC6110851B784AF700DC44B1 /* CustomDTM 1.xcdatamodel */;
 			name = CustomDTM.xcdatamodeld;
 			path = ../../SHCoreDataManagerResource/CustomDTM.xcdatamodeld;
 			sourceTree = "<group>";
